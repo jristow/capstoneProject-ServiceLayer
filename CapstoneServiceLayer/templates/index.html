@@ -31,7 +31,7 @@ svg { background-color: whitesmoke; }
 text { fill: #cbcbcb; font-size: 24px; }
 #states { fill: black; stroke: grey; stroke-width: 0.5px; }
 rect { fill: lightblue; }
-
+#selected { fill: lightcoral;}
 .svg-container {
     display: inline-block;
     position: relative;
@@ -68,23 +68,25 @@ rect { fill: lightblue; }
             </ul>
         </div>
     </nav>
-    <div class="input-group input-group-sm mb-3">
-        <div class="input-group-prepend">
-            <button class="btn btn-outline-secondary" type="button" id="button-addon1">Zip Search</button>
-        </div>
-        <input type="text" class="form-control" aria-label="Zip code search">
-    </div>
+    <center>
+    <div id="inputdiv">
+        <p>Type a zip code
+            <br>Space to clear entry
+        </p>
+    </div></center>
     <div id="container" class="svg-container"></div>
 
     <script>
         /* Defining the width and height of svg */
         var width = 1200, height = 600;
+        var instructions = "", selectedZip = "";
+        var medSales = "", salary = "", hAI = "";
         /* Creating a geoAlbersUsa projection which provides us
         our basic US map feature */
         var proj = d3.geoAlbersUsa().scale(1200)
             .translate([width / 2, height / 2]);
 
-
+        
         /* Creating the geoPath which will draw out our map based
         on input data*/
         var path = d3.geoPath().projection(proj);
@@ -92,22 +94,79 @@ rect { fill: lightblue; }
         executing the render function */
         queue()
             .defer(d3.json, "./static/us-states.geojson")
-            .defer(d3.tsv, "./static/zips.tsv")
+           // .defer(d3.tsv, "./static/zips.tsv")
             .defer(d3.json, "/getData")
             .await(render);
+
+        function key() {
+            var code = d3.event.keyCode;
+
+            if (code == 32) {
+                //Space: clear code
+                updateSelection("");
+            } else if (code == 37 || code == 8) {
+                //Backspace or left arrow: remove one number
+                if (selectedZip.length > 0) {
+                    updateSelection(selectedZip.substr(0,selectZip.length - 1));
+                }
+                // Prevent the browser from going back in the URL history
+                d3.event.preventDefault();
+            } else if (code >= 48 && code <= 57) {
+                // number keys
+                appendToSelection(String.fromCharCode(code))
+            } else if (code >= 96 && code <= 105) {
+                //numeric keypad
+                appendToSelection(String.fromCharCode(code-48));
+            }
+        };
+
+        function appendToSelection(digit) {
+            if (selectedZip.length < 5) {
+                updateSelection(selectedZip + "" + digit);
+            }
+        };
+
+        function updateSelection(n) {
+            selectedZip = n;
+            var l = selectedZip.length;
+
+            var t = l > 0 ? selectedZip : instructions;
+            d3.select("#selected").text(t);
+            
+            if (l === 5) {
+                url = "/getZipInfo/" + selectedZip;
+                d3.json(url, function (error, data) {
+                    medSales = data[0].MedianSalesPrice;
+                    salary = data[0].QualifyingIncome;
+                    hAI = data[0].HousingAffordabilityIndex;
+                    updateText(medSales, salary, hAI);
+                });
+            };
+            
+        };
+
+        function updateText(medSales, salary, hAI) {
+            d3.select("#medsales").text("$" + medSales);
+            d3.select("#salary").text(salary);
+            d3.select("#hAI").text(hAI);
+        };
         /* Defining the render function which will take the input data
         build out the map and then populate the map with points for each
         zip code */
-        function render(error, states, zips, sales) {
+        function render(error, states, sales) {
             /*This appends an SVG to the container div*/
             var svg = d3.select("#container").append("svg")
                 .attr("preserveAspectRatio", "xMinYMin meet")
                 .attr("viewBox", "0,0,1200,600")
                 .classed("svg-content", true)
-                .call(d3.zoom().on("zoom", function () {
+                /*.call(d3.zoom().on("zoom", function () {
                     svg.attr("transform", d3.event.transform)
                 }))
-                .append("g");
+                .append("g")*/;
+
+            svg.append("text").attr("id", "selected")
+                .text(instructions)
+                .attr("x", 20).attr("y", 50);
 
             /*This appends a D3 div g to the SVG div and then adds
             US states to the SVG*/
@@ -118,14 +177,14 @@ rect { fill: lightblue; }
                 .attr("d", path)
             /* This appends a D3 div g to the SVG and then adds small
             rectangle features based on zip code coordinates*/
-            svg.append("g").attr("id", "zipdots");
+            /*svg.append("g").attr("id", "zipdots");
             d3.select("#zipdots").selectAll("rect")
                 .data(zips)
                 .enter().append("rect")
                 .attr("x", function (d) { var p = proj([d.lon, d.lat]); return p ? p[0] : null; })
                 .attr("y", function (d) { var p = proj([d.lon, d.lat]); return p ? p[1] : null; })
                 .attr("width", 1)
-                .attr("height", 1);
+                .attr("height", 1); */
             /* This creates a color scale which will be used on our Housing
             Affordability Index to color the zip code points */
             color = d3.scaleLinear().domain([0, 300]).range(["red", "yellow"]);
@@ -142,7 +201,41 @@ rect { fill: lightblue; }
                     return color(d.HousingAffordabilityIndex);
                 });
 
+            svg.append("text").attr("id", "selected")
+                .text("Median Sales Price: ")
+                .attr("x", 20).attr("y", 300)
+                .style("font-size", 16);
 
+            svg.append("text").attr("id", "medsales")
+                .text(medSales)
+                .attr("x", 20).attr("y", 320)
+                .style("font-size", 16)
+                .style("fill", "lightcoral");
+            
+            svg.append("text").attr("id", "selected")
+                .text("Salary Required: ")
+                .attr("x", 20).attr("y", 340)
+                .style("font-size", 16);
+            
+            svg.append("text").attr("id", "salary")
+                .attr("class", "salary")
+                .text(salary)
+                .attr("x", 20).attr("y", 360)
+                .style("font-size", 16)
+                .style("fill", "lightcoral");
+
+            svg.append("text").attr("id", "selected")
+                .text("Housing Affordability Score: ")
+                .attr("x", 20).attr("y", 380)
+                .style("font-size", 16);
+            
+            svg.append("text").attr("id", "hAI")
+                .text(hAI)
+                .attr("x", 20).attr("y", 400)
+                .style("font-size", 16)
+                .style("fill", "lightcoral");
+
+            d3.select("body").on("keydown", key);
         };
 
     </script>
