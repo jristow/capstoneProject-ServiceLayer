@@ -1,4 +1,4 @@
-from flask import Flask, render_template
+from flask import Flask, render_template, Response
 from pymongo import MongoClient
 import json
 from bson import json_util
@@ -11,7 +11,7 @@ MONGODB_HOST = 'localhost'
 MONGODB_PORT = 27017
 DBS_NAME = 'capstoneproject'
 COLLECTION_NAME = 'zipData'
-FIELDS = {"_id": False, 'zip': True, 'Longitude': True, 'Latitude': True, "MedianSalesPrice": True, "QualifyingIncome": True, "HousingAffordabilityIndex": True}
+FIELDS = {"_id": False, 'Zip': True, 'Longitude': True, 'Latitude': True, "MedianSalesPrice": True, "QualifyingIncome": True, "HousingAffordabilityIndex": True}
 
 @app.route('/')
 def home():
@@ -32,6 +32,18 @@ def getData():
     json_zipData = json.dumps(json_zipData, default=json_util.default)
     connection.close()
     return json_zipData
+
+@app.route('/getZipInfo/<string:zip>')
+def getZipInfo(zip):
+    connection = MongoClient(MONGODB_HOST, MONGODB_PORT)
+    collection = connection[DBS_NAME][COLLECTION_NAME]
+    zipInfo = collection.find({'Zip': zip},projection={'_id': False, 'MedianSalesPrice': True, 'QualifyingIncome': True, 'HousingAffordabilityIndex': True })
+    json_zipInfo = []
+    for zip in zipInfo:
+        json_zipInfo.append(zip)
+    json_zipInfo = json.dumps(json_zipInfo, default=json_util.default)
+    connection.close()
+    return json_zipInfo
 
 if __name__ == "__main__":
     app.run(host='0.0.0.0', port=5000, debug=True)
