@@ -13,10 +13,12 @@ DBS_NAME = 'capstoneproject'
 COLLECTION_NAME = 'zipData'
 FIELDS = {"_id": False, 'Zip': True, 'Longitude': True, 'Latitude': True, "MedianSalesPrice": True, "QualifyingIncome": True, "HousingAffordabilityIndex": True}
 
+# The main index page showing the Map visualization
 @app.route('/')
 def home():
     return render_template('index.html')
 
+# The about page 
 @app.route('/about')
 def about():
     return render_template('about.html')

@@ -120,12 +120,15 @@ rect { fill: lightblue; }
             }
         };
 
+        //Adds digit to the selected zip
         function appendToSelection(digit) {
             if (selectedZip.length < 5) {
                 updateSelection(selectedZip + "" + digit);
             }
         };
-
+        
+        // Updates the svg element to display the currently typed
+        // numbers of the zip code
         function updateSelection(n) {
             selectedZip = n;
             var l = selectedZip.length;
@@ -133,6 +136,10 @@ rect { fill: lightblue; }
             var t = l > 0 ? selectedZip : instructions;
             d3.select("#selected").text(t);
             
+            // Once five numbers are input, the get zip info
+            // endpoint is reached. This sends the selected zip
+            // to the database and returns the Median sales price,
+            // qualifying income and housing affordability index values.
             if (l === 5) {
                 url = "/getZipInfo/" + selectedZip;
                 d3.json(url, function (error, data) {
@@ -145,6 +152,8 @@ rect { fill: lightblue; }
             
         };
 
+        // Update text prints out the sales, salary and affordability index
+        // values on the svg.
         function updateText(medSales, salary, hAI) {
             d3.select("#medsales").text("$" + medSales);
             d3.select("#salary").text(salary);
@@ -158,11 +167,7 @@ rect { fill: lightblue; }
             var svg = d3.select("#container").append("svg")
                 .attr("preserveAspectRatio", "xMinYMin meet")
                 .attr("viewBox", "0,0,1200,600")
-                .classed("svg-content", true)
-                /*.call(d3.zoom().on("zoom", function () {
-                    svg.attr("transform", d3.event.transform)
-                }))
-                .append("g")*/;
+                .classed("svg-content", true);
 
             svg.append("text").attr("id", "selected")
                 .text(instructions)
@@ -185,9 +190,12 @@ rect { fill: lightblue; }
                 .attr("y", function (d) { var p = proj([d.lon, d.lat]); return p ? p[1] : null; })
                 .attr("width", 1)
                 .attr("height", 1); */
+
+
             /* This creates a color scale which will be used on our Housing
             Affordability Index to color the zip code points */
             color = d3.scaleLinear().domain([0, 300]).range(["red", "yellow"]);
+            
             /* This adds our zip code dots with the color code based on 
             housing affordability index */
             svg.append("g").attr("id", "zipdots");
