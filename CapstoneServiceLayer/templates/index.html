@@ -94,7 +94,7 @@ text { fill: #cbcbcb; font-size: 24px; }
         executing the render function */
         queue()
             .defer(d3.json, "./static/us-states.geojson")
-            .defer(d3.json, "/getData")
+            .defer(d3.json, "./static/zipData.json")
             .await(render);
 
         function key() {
