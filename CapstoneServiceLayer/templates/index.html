@@ -29,8 +29,8 @@ h1 {
 /* SVG styling */
 svg { background-color: whitesmoke; }
 text { fill: #cbcbcb; font-size: 24px; }
-#states { fill: black; stroke: grey; stroke-width: 0.5px; }
-rect { fill: lightblue; }
+#states { fill: #343a40; stroke: grey; stroke-width: 0.5px; }
+
 #selected { fill: lightcoral;}
 .svg-container {
     display: inline-block;
@@ -94,7 +94,6 @@ rect { fill: lightblue; }
         executing the render function */
         queue()
             .defer(d3.json, "./static/us-states.geojson")
-           // .defer(d3.tsv, "./static/zips.tsv")
             .defer(d3.json, "/getData")
             .await(render);
 
@@ -175,16 +174,7 @@ rect { fill: lightblue; }
                 .data(states.features)
                 .enter().append("path")
                 .attr("d", path)
-            /* This appends a D3 div g to the SVG and then adds small
-            rectangle features based on zip code coordinates*/
-            /*svg.append("g").attr("id", "zipdots");
-            d3.select("#zipdots").selectAll("rect")
-                .data(zips)
-                .enter().append("rect")
-                .attr("x", function (d) { var p = proj([d.lon, d.lat]); return p ? p[0] : null; })
-                .attr("y", function (d) { var p = proj([d.lon, d.lat]); return p ? p[1] : null; })
-                .attr("width", 1)
-                .attr("height", 1); */
+            
             /* This creates a color scale which will be used on our Housing
             Affordability Index to color the zip code points */
             color = d3.scaleLinear().domain([0, 300]).range(["red", "yellow"]);
@@ -234,6 +224,23 @@ rect { fill: lightblue; }
                 .attr("x", 20).attr("y", 400)
                 .style("font-size", 16)
                 .style("fill", "lightcoral");
+            
+            svg.append("rect")
+                .attr("x", 960).attr("y", 360)
+                .attr("width", 225).attr("height", 50)
+                .attr("fill","#343a40");
+
+            svg.append("text").attr("id", "selected")
+                .text("Least Affordable Zip Codes")
+                .attr("x", 980).attr("y", 380)
+                .style("font-size", 16)
+                .style("fill", ()=> {return color(0)});
+
+            svg.append("text").attr("id", "selected")
+                .text("Most Affordable Zip Codes")
+                .attr("x", 980).attr("y", 400)
+                .style("font-size", 16)
+                .style("fill", ()=> {return color(300)});
 
             d3.select("body").on("keydown", key);
         };

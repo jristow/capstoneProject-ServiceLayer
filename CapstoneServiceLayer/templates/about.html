@@ -27,11 +27,19 @@
         </div>
     </nav>
     <div class="jumbotron">
-        <h1 class="display-3">About this Project</h1>
+        <center><h1 class="display-3">About this Project</h1>
         <hr class="my-4">
-        <p>This project was built using D3.js, Python Flask and MongoDB.</p>
-        <p>The data used to populate the map was pulled from Zillow.</p>
-        <p>Additional information will be provided as I develop this more.</p>
+        <p>This project was created to explore the affordability of housing in select zip codes throughout the United States.<br>
+        Median sales price information was pulled from Zillows database and affordability scores were calculated using the<br>
+        National Association of Realtors formula for Housing Affordability. </p>
+        <p></p>
+        <p>Housing Affordability Index = (Median Salary / Qualifying Salary) * 100</p>
+        <p>Where Median Salary was pulled from the Census Bureau's Annual community survey for 2017, with a value of $63,000. <br>
+        Qualifying Salary was calculated using the Monthly Mortgage Payment of the median sales price in each zip code, with 20% down payment.<br>
+        </p>
+        <p>This project is powered by a Flask backend, NoSQL database, and D3.js frontend. <br>
+        The code can be found at <a href="https://github.com/jristow/capstoneProject-ServiceLayer">GitHub</a></p>
+    </center>
     </div>
 </body>
 </html>
