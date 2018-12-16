@@ -9,6 +9,7 @@ app = Flask(__name__)
 # MongoDB initialization values
 MONGODB_HOST = 'localhost'
 MONGODB_PORT = 27017
+MONGODB_URI = os.environ["DATABASE_URL"]
 DBS_NAME = 'capstoneproject'
 COLLECTION_NAME = 'zipData'
 FIELDS = {"_id": False, 'Zip': True, 'Longitude': True, 'Latitude': True,
@@ -27,7 +28,7 @@ def about():
 
 @app.route('/getData')
 def getData():
-    connection = MongoClient(MONGODB_HOST, MONGODB_PORT)
+    connection = MongoClient(MONGODB_URI)
     collection = connection[DBS_NAME][COLLECTION_NAME]
     zipData = collection.find(projection=FIELDS)
     json_zipData = []
