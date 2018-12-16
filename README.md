@@ -12,7 +12,7 @@ User interface layer is built with D3.js.
 
 This application has been deployed live to both AWS and Heroku. Links are available below.
 
-AWS: http://finalcapstoneproject.mzadpkv4wh.us-west-2.elasticbeanstalk.com/ /br
+AWS: http://finalcapstoneproject.mzadpkv4wh.us-west-2.elasticbeanstalk.com/ <br>
 Heroku: https://ristowcapstoneproject.herokuapp.com/
 
 To run, from the directory with the service layer enter the following commands in your terminal:
